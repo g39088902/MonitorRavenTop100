@@ -10,7 +10,7 @@ from sqlalchemy.ext.automap import automap_base
 try:
     print(curTime()+"开始连接SQL，请稍等") #Connect to database
     #please set your password here, default user name is postgres
-    engine = create_engine("postgresql://postgres:yourPassword@yourDomainName:5432/raven")
+    engine = create_engine("postgresql://postgres:yourPassword@yourDomainName.com:5432/raven")
     base = automap_base()
     base.prepare(engine, reflect=True)
 
@@ -31,6 +31,8 @@ session = Session()
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+import datetime
 plt.figure(figsize=(12, 6))
 
 def genimage():
@@ -44,10 +46,21 @@ def genimage():
         return [data[0],100*data[1]/data[2]]
 
     Datas=map(percent,Datas)
-    Datas = pd.DataFrame(data=Datas, columns=['Time','Top100 position'])
-    image=sns.lineplot(data=Datas,x='Time',y='Top100 position')
+    
+    Datas = pd.DataFrame(data=Datas, columns=['Time','Position'])
+    Conv = pd.DataFrame(data=Datas['Time'][4:],columns=['Time'])
+    Conv["Position"]=np.convolve(Datas['Position'],[0.2,0.2,0.2,0.2,0.2],'valid')
+    Datas=Datas[4:]
+    Datas['Region']="RawPosition(%)"
+    Conv['Region']="Convolove(%)"
+    # print(Datas)
+    # print(Conv)
+    Datas=pd.concat([Datas,Conv])
+    print(Datas)
+    image=sns.lineplot(data=Datas,x='Time',y='Position',hue='Region')
+    
     plt.title('Raven Monitor of Top100 Richest  updated:'+curTime())
-    plt.savefig("./htdocs/new.jpg")
+    plt.savefig("./new.jpg")
 
 while(True):
     genimage()
