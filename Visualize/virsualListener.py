@@ -56,9 +56,8 @@ def genimage():
     # print(Datas)
     # print(Conv)
     Datas=pd.concat([Datas,Conv])
-    print(Datas)
+    plt.cla()
     image=sns.lineplot(data=Datas,x='Time',y='Position',hue='Region')
-    
     plt.title('Raven Monitor of Top100 Richest  updated:'+curTime())
     plt.savefig("./new.jpg")
 
