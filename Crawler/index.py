@@ -32,16 +32,22 @@ def handler(event,context):
     import json
     response = requests.get('https://ravencoin.network/api/statistics/richest-addresses-list')
     content=json.loads(response.content)
-    topSum=0
+    topSum100=0
+    topSum20=0
+    curPeople=0
     for record in content:
-        topSum+=int(record['balance'])
-    print(curTime()+"当前top总和："+str(topSum)+"RVN") #top100 sum
+        topSum100+=int(record['balance'])
+        if(curPeople<=20):
+            topSum20+=int(record['balance'])
+        curPeople+=1
+    print(curTime()+"当前top100总和："+str(topSum100)+"RVN") #top100 sum
+    print(curTime()+"当前top20总和："+str(topSum20)+"RVN")
 
     response = requests.get('https://ravencoin.network/api/statistics/total-supply?format=object')
     content=json.loads(response.content)
     supply=content['supply']
 
     print(curTime()+"当前总流通："+str(supply)+"RVN") #total supply
-    session.add(top100sum(topSum=topSum,supply=supply))
+    session.add(top100sum(topSum100=topSum100,topSum20=topSum20,supply=supply))
     session.flush()
     session.commit()
